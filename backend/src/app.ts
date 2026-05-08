@@ -96,19 +96,17 @@ if (process.env.NODE_ENV === "production") {
 }
 
 // ============================================================================
-// 📚 SWAGGER DOCS (Development only)
+// 📚 SWAGGER DOCS
 // ============================================================================
-if (process.env.NODE_ENV !== "production") {
-    app.use(
-        "/api/docs",
-        swaggerUi.serve,
-        swaggerUi.setup(swaggerSpec, {
-            swaggerOptions: {
-                persistAuthorization: true,
-            },
-        })
-    );
-}
+app.use(
+    "/api/docs",
+    swaggerUi.serve,
+    swaggerUi.setup(swaggerSpec, {
+        swaggerOptions: {
+            persistAuthorization: true,
+        },
+    })
+);
 
 // ============================================================================
 // 🛣️ PUBLIC ROUTES (No authentication required)

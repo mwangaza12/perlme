@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import {
     discoveryPreferencesValidator,
     userInterestedInValidator,
@@ -24,7 +25,7 @@ import {
 } from "./profile.service";
 
 // ========================== GET OWN PROFILE ==========================
-export const getMyProfileController = async (req: Request, res: Response) => {
+export const getMyProfileController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -36,12 +37,12 @@ export const getMyProfileController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to fetch profile" });
     }
-};
+});
 
 // ========================== GET ANY USER'S PROFILE ==========================
-export const getUserProfileController = async (req: Request, res: Response) => {
+export const getUserProfileController = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { userId } = req.params;
+        const { userId } = req.params as Record<string, string>;
         const profile = await getFullProfile(userId);
         if (!profile) return res.status(404).json({ error: "User not found" });
 
@@ -49,10 +50,10 @@ export const getUserProfileController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to fetch profile" });
     }
-};
+});
 
 // ========================== UPDATE CORE PROFILE ==========================
-export const updateProfileController = async (req: Request, res: Response) => {
+export const updateProfileController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -71,10 +72,10 @@ export const updateProfileController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to update profile" });
     }
-};
+});
 
 // ========================== SET LANGUAGES ==========================
-export const setLanguagesController = async (req: Request, res: Response) => {
+export const setLanguagesController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -87,10 +88,10 @@ export const setLanguagesController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to update languages" });
     }
-};
+});
 
 // ========================== SET PERSONALITY TRAITS ==========================
-export const setPersonalityTraitsController = async (req: Request, res: Response) => {
+export const setPersonalityTraitsController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -103,10 +104,10 @@ export const setPersonalityTraitsController = async (req: Request, res: Response
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to update personality traits" });
     }
-};
+});
 
 // ========================== SET INTERESTED IN ==========================
-export const setInterestedInController = async (req: Request, res: Response) => {
+export const setInterestedInController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -119,10 +120,10 @@ export const setInterestedInController = async (req: Request, res: Response) => 
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to update interested-in preferences" });
     }
-};
+});
 
 // ========================== SET LOCATION ==========================
-export const setLocationController = async (req: Request, res: Response) => {
+export const setLocationController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -140,10 +141,10 @@ export const setLocationController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to update location" });
     }
-};
+});
 
 // ========================== SET DISCOVERY PREFERENCES ==========================
-export const setDiscoveryPreferencesController = async (req: Request, res: Response) => {
+export const setDiscoveryPreferencesController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -156,30 +157,30 @@ export const setDiscoveryPreferencesController = async (req: Request, res: Respo
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to update discovery preferences" });
     }
-};
+});
 
 // ========================== LIST LANGUAGES (for frontend dropdowns) ==========================
-export const listLanguagesController = async (_req: Request, res: Response) => {
+export const listLanguagesController = asyncHandler(async (_req: Request, res: Response) => {
     try {
         const data = await getAllLanguages();
         res.status(200).json({ data });
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to fetch languages" });
     }
-};
+});
 
 // ========================== LIST PERSONALITY TRAITS (for frontend dropdowns) ==========================
-export const listPersonalityTraitsController = async (_req: Request, res: Response) => {
+export const listPersonalityTraitsController = asyncHandler(async (_req: Request, res: Response) => {
     try {
         const data = await getAllPersonalityTraits();
         res.status(200).json({ data });
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to fetch personality traits" });
     }
-};
+});
 
 // ========================== SET INTERESTS ==========================
-export const setInterestsController = async (req: Request, res: Response) => {
+export const setInterestsController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -192,20 +193,20 @@ export const setInterestsController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to update interests" });
     }
-};
+});
 
 // ========================== LIST INTERESTS (for frontend dropdowns) ==========================
-export const listInterestsController = async (_req: Request, res: Response) => {
+export const listInterestsController = asyncHandler(async (_req: Request, res: Response) => {
     try {
         const data = await getAllInterests();
         res.status(200).json({ data });
     } catch (error: any) {
         res.status(500).json({ error: error.message || "Failed to fetch interests" });
     }
-};
+});
 
 // ========================== REQUEST PHONE OTP ==========================
-export const requestPhoneOtpController = async (req: Request, res: Response) => {
+export const requestPhoneOtpController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -227,10 +228,10 @@ export const requestPhoneOtpController = async (req: Request, res: Response) => 
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to send OTP" });
     }
-};
+});
 
 // ========================== VERIFY PHONE OTP ==========================
-export const verifyPhoneOtpController = async (req: Request, res: Response) => {
+export const verifyPhoneOtpController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = (req as any).user?.id;
         if (!userId) return res.status(401).json({ error: "Unauthorized" });
@@ -245,4 +246,4 @@ export const verifyPhoneOtpController = async (req: Request, res: Response) => {
     } catch (error: any) {
         res.status(400).json({ error: error.message || "Failed to verify OTP" });
     }
-};
+});

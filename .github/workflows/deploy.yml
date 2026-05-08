@@ -11,29 +11,39 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Deploy to VPS
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
           script: |
-            # Load NVM (required for npm, npx, pm2)
-            export NVM_DIR="/root/.nvm"
-            source "$NVM_DIR/nvm.sh"
-            # Use the installed Node version
-            nvm use v20.19.5
-            # Move to backend directory
-            cd /root/perlme/backend
-            # Pull latest changes
+            set -e
+
+            cd /root/perlme
+
+            # Pull latest code
             git pull origin master
-            # Install dependencies
-            npm install
-            # Build project
-            npm run build
-            # Run migrations
-            npx drizzle-kit migrate
-            # Restart API
-            pm2 restart perlme_api
+
+            cd backend
+
+            # Install dependencies (pnpm, locked versions)
+            pnpm install --frozen-lockfile
+
+            # Compile TypeScript
+            pnpm build
+
+            # Run any new DB migrations against local Postgres
+            node dist/drizzle/migrate.js
+
+            # Zero-downtime reload (replaces old process before stopping it)
+            pm2 reload ecosystem.config.js --env production
+
+            # Wait for process to stabilise then health-check
+            sleep 5
+            curl --silent --fail http://127.0.0.1:4000/health \
+              || { echo "Health check failed — dumping logs:"; pm2 logs perlme_api --lines 30 --nostream; exit 1; }
+
+            echo "Deploy successful"

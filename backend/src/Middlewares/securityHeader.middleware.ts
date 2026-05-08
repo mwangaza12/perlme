@@ -97,16 +97,36 @@ export const applySecurityHeaders = (app: Express) => {
     });
 };
 
-/**
- * CORS configuration
- * Apply this separately with the 'cors' package
- */
+// Parse and validate CORS origins once at startup.
+// Set CORS_ALLOWED_ORIGINS as a comma-separated list in your .env:
+//   CORS_ALLOWED_ORIGINS=https://app.pearlme.com,https://admin.pearlme.com
+// Falls back to FRONTEND_URL, then localhost for development.
+const rawOrigins =
+    process.env.CORS_ALLOWED_ORIGINS ||
+    process.env.FRONTEND_URL ||
+    "http://localhost:3000";
+
+const allowedOrigins: string[] = rawOrigins
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean);
+
+// Validate each origin at startup — throws if any entry is malformed,
+// preventing silent CORS misconfigurations in production.
+for (const origin of allowedOrigins) {
+    try {
+        new URL(origin);
+    } catch {
+        throw new Error(`Invalid CORS origin in config: "${origin}"`);
+    }
+}
+
 export const corsOptions = {
-    origin: process.env.FRONTEND_URL || "http://localhost:3000",
+    origin: allowedOrigins.length === 1 ? allowedOrigins[0] : allowedOrigins,
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
     exposedHeaders: ["Content-Range", "X-Content-Range"],
-    maxAge: 600, // Cache preflight for 10 minutes
+    maxAge: 600,
 };

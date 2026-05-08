@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm";
-import { boolean, doublePrecision, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique, uuid, varchar, } from "drizzle-orm/pg-core";
+import { boolean, doublePrecision, index, integer, pgEnum, pgTable, primaryKey, text, timestamp, unique, uuid, varchar, } from "drizzle-orm/pg-core";
 
 // ========================== ENUMS ==========================
 
@@ -115,7 +115,9 @@ export const users = pgTable("users", {
   role: userRoleEnum("role").default("REGULAR").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_users_suspended").on(table.isSuspended, table.suspendedUntil),
+]);
 
 
 // ========================== INTERESTS ==========================
@@ -208,7 +210,9 @@ export const follows = pgTable("follows", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_follows_follower_following").on(table.followerId, table.followingId),
+]);
 
 // ========================== BLOCKS ==========================
 export const blocks = pgTable("blocks", {
@@ -220,7 +224,9 @@ export const blocks = pgTable("blocks", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_blocks_blocker_blocked").on(table.blockerId, table.blockedId),
+]);
 
 // ========================== MESSAGES ==========================
 export const messages = pgTable("messages", {
@@ -236,7 +242,10 @@ export const messages = pgTable("messages", {
   mediaType: varchar("media_type", { length: 50 }),
   status: messageStatusEnum("status").default("SENT"),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_messages_sender_receiver").on(table.senderId, table.receiverId),
+  index("idx_messages_receiver_status").on(table.receiverId, table.status),
+]);
 
 // ========================== POSTS ==========================
 export const posts = pgTable("posts", {
@@ -247,7 +256,10 @@ export const posts = pgTable("posts", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_posts_author_created").on(table.authorId, table.createdAt),
+  index("idx_posts_created").on(table.createdAt),
+]);
 
 // ========================== MEDIA (for posts) ==========================
 export const media = pgTable("media", {
@@ -271,7 +283,9 @@ export const comments = pgTable("comments", {
     .notNull(),
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_comments_post").on(table.postId),
+]);
 
 // ========================== LIKES ==========================
 export const likes = pgTable("likes", {
@@ -283,7 +297,9 @@ export const likes = pgTable("likes", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_likes_user_post").on(table.userId, table.postId),
+]);
 
 // ========================== TAGS ==========================
 export const tags = pgTable("tags", {
@@ -332,7 +348,9 @@ export const reports = pgTable("reports", {
   resolutionNotes: text("resolution_notes"),
   createdAt: timestamp("created_at").defaultNow(),
   resolvedAt: timestamp("resolved_at"),
-});
+}, (table) => [
+  index("idx_reports_reported_user_status").on(table.reportedUserId, table.status),
+]);
 
 
 // ========================== LOCATIONS ==========================
@@ -386,7 +404,9 @@ export const groupMembers = pgTable("group_members", {
     .notNull(),
   role: groupRoleEnum("role").default("GROUP_MEMBER").notNull(),
   joinedAt: timestamp("joined_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_group_members_group_user").on(table.groupId, table.userId),
+]);
 
 // ========================== GROUP MESSAGES ==========================
 export const groupMessages = pgTable("group_messages", {
@@ -401,7 +421,9 @@ export const groupMessages = pgTable("group_messages", {
   mediaUrl: text("media_url"),
   mediaType: varchar("media_type", { length: 50 }),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (table) => [
+  index("idx_group_messages_group_created").on(table.groupId, table.createdAt),
+]);
 
 // ========================== POST METRICS ==========================
 export const postMetrics = pgTable("post_metrics", {
@@ -751,7 +773,10 @@ export const notifications = pgTable("notifications", {
   message: text("message").notNull(),
   isRead: boolean("is_read").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (table) => [
+  index("idx_notifications_user_read").on(table.userId, table.isRead),
+  index("idx_notifications_user_created").on(table.userId, table.createdAt),
+]);
 
 export const notificationsRelations = relations(notifications, ({ one }) => ({
   user: one(users, {

@@ -30,22 +30,20 @@ if (process.env.REDIS_URL) {
   }
 }
 
-/**
- * Rate limit configurations for different endpoints
- */
-const RATE_LIMIT_CONFIGS = {
-  // General API (existing endpoints)
-  api: {
-    user: { points: 60, duration: 60 },   // 60 requests per minute
-    guest: { points: 30, duration: 60 },  // 30 requests per minute
-  },
+const env = (key: string, fallback: number) =>
+  parseInt(process.env[key] ?? String(fallback), 10);
 
-  // Authentication endpoints (STRICT)
+// Values are read once at startup; changing them requires a process restart.
+const RATE_LIMIT_CONFIGS = {
+  api: {
+    user:  { points: env("RATE_LIMIT_API_USER_POINTS", 60),  duration: env("RATE_LIMIT_API_USER_DURATION", 60) },
+    guest: { points: env("RATE_LIMIT_API_GUEST_POINTS", 30), duration: env("RATE_LIMIT_API_GUEST_DURATION", 60) },
+  },
   auth: {
-    login: { points: 5, duration: 900 },         // 5 attempts per 15 min
-    registration: { points: 3, duration: 3600 }, // 3 per hour
-    passwordReset: { points: 3, duration: 3600 }, // 3 per hour
-    verification: { points: 10, duration: 900 },  // 10 per 15 min
+    login:         { points: env("RATE_LIMIT_LOGIN_POINTS", 5),          duration: env("RATE_LIMIT_LOGIN_DURATION", 900) },
+    registration:  { points: env("RATE_LIMIT_REGISTRATION_POINTS", 3),   duration: env("RATE_LIMIT_REGISTRATION_DURATION", 3600) },
+    passwordReset: { points: env("RATE_LIMIT_PASSWORD_RESET_POINTS", 3), duration: env("RATE_LIMIT_PASSWORD_RESET_DURATION", 3600) },
+    verification:  { points: env("RATE_LIMIT_VERIFICATION_POINTS", 10),  duration: env("RATE_LIMIT_VERIFICATION_DURATION", 900) },
   },
 };
 

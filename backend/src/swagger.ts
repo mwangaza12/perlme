@@ -1,5 +1,7 @@
 import swaggerJSDoc from "swagger-jsdoc";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const swaggerSpec = swaggerJSDoc({
     definition: {
         openapi: "3.0.0",
@@ -13,10 +15,9 @@ const swaggerSpec = swaggerJSDoc({
                 url: "http://localhost:3000",
                 description: "Local",
             },
-            {
-                url: process.env.API_BASE_URL,
-                description: "Production",
-            },
+            ...(process.env.API_BASE_URL
+                ? [{ url: process.env.API_BASE_URL, description: "Production" }]
+                : []),
         ],
         components: {
             securitySchemes: {
@@ -29,13 +30,17 @@ const swaggerSpec = swaggerJSDoc({
         },
         security: [{ bearerAuth: [] }],
     },
-
-    // 👇 WHERE YOUR ROUTES LIVE
-    apis: [
-        "./src/Auth/**/*.ts",
-        "./src/Services/**/*.ts",
-        "./src/Middlewares/**/*.ts",
-    ],
+    apis: isProd
+        ? [
+              "./dist/Auth/**/*.js",
+              "./dist/Services/**/*.js",
+              "./dist/Middlewares/**/*.js",
+          ]
+        : [
+              "./src/Auth/**/*.ts",
+              "./src/Services/**/*.ts",
+              "./src/Middlewares/**/*.ts",
+          ],
 });
 
 export default swaggerSpec;

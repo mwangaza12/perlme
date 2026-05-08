@@ -50,6 +50,13 @@
       "when": 1774301994514,
       "tag": "0006_long_baron_zemo",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1778203647309,
+      "tag": "0007_lucky_zzzax",
+      "breakpoints": true
     }
   ]
 }

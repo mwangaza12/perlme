@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import { createBlockSchema, unblockSchema } from "../../Validators/Block.validator";
 import { BlockService } from "./block.service";
 
 // ========================== CREATE BLOCK ==========================
-export const createBlockController = async (req: Request, res: Response) => {
+export const createBlockController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const blockerId = req.user?.id;
     if (!blockerId) {
@@ -30,10 +31,10 @@ export const createBlockController = async (req: Request, res: Response) => {
       error: error.message || "Failed to block user",
     });
   }
-};
+});
 
 // ========================== REMOVE BLOCK ==========================
-export const removeBlockController = async (req: Request, res: Response) => {
+export const removeBlockController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const blockerId = req.user?.id;
     if (!blockerId) {
@@ -60,13 +61,13 @@ export const removeBlockController = async (req: Request, res: Response) => {
       error: error.message || "Failed to unblock user",
     });
   }
-};
+});
 
 // ========================== CHECK IF BLOCKED ==========================
-export const checkBlockStatusController = async (req: Request, res: Response) => {
+export const checkBlockStatusController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const blockerId = req.user?.id;
-    const { targetUserId } = req.params;
+    const { targetUserId } = req.params as Record<string, string>;
 
     if (!blockerId) {
       return res.status(401).json({ error: "Unauthorized: Login required" });
@@ -84,10 +85,10 @@ export const checkBlockStatusController = async (req: Request, res: Response) =>
       error: error.message || "Failed to check block status",
     });
   }
-};
+});
 
 // ========================== GET USERS BLOCKED BY ME ==========================
-export const getBlockedUsersController = async (req: Request, res: Response) => {
+export const getBlockedUsersController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const blockerId = req.user?.id;
     if (!blockerId) {
@@ -105,10 +106,10 @@ export const getBlockedUsersController = async (req: Request, res: Response) => 
       error: error.message || "Failed to fetch blocked users",
     });
   }
-};
+});
 
 // ========================== GET USERS WHO BLOCKED ME ==========================
-export const getBlockedByController = async (req: Request, res: Response) => {
+export const getBlockedByController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const blockedId = req.user?.id;
     if (!blockedId) {
@@ -126,4 +127,4 @@ export const getBlockedByController = async (req: Request, res: Response) => {
       error: error.message || "Failed to fetch who blocked you",
     });
   }
-};
+});

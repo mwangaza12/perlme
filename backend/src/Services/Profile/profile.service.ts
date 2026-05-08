@@ -74,7 +74,6 @@ export const updateProfile = async (userId: string, updates: Partial<TUserValida
 };
 
 export const setUserLanguages = async (userId: string, languageIds: string[]) => {
-    // Validate all IDs exist
     const found = await db
         .select({ id: languages.id })
         .from(languages)
@@ -85,13 +84,14 @@ export const setUserLanguages = async (userId: string, languageIds: string[]) =>
         throw new Error(`Unknown language IDs: ${invalid.join(", ")}`);
     }
 
-    await db.delete(userLanguages).where(eq(userLanguages.userId, userId));
-
-    if (languageIds.length > 0) {
-        await db.insert(userLanguages).values(
-            languageIds.map((languageId) => ({ userId, languageId }))
-        );
-    }
+    await db.transaction(async (tx) => {
+        await tx.delete(userLanguages).where(eq(userLanguages.userId, userId));
+        if (languageIds.length > 0) {
+            await tx.insert(userLanguages).values(
+                languageIds.map((languageId) => ({ userId, languageId }))
+            );
+        }
+    });
 };
 
 // ========================== SET PERSONALITY TRAITS ==========================
@@ -107,13 +107,14 @@ export const setUserPersonalityTraits = async (userId: string, traitIds: string[
         throw new Error(`Unknown trait IDs: ${invalid.join(", ")}`);
     }
 
-    await db.delete(userPersonalityTraits).where(eq(userPersonalityTraits.userId, userId));
-
-    if (traitIds.length > 0) {
-        await db.insert(userPersonalityTraits).values(
-            traitIds.map((traitId) => ({ userId, traitId }))
-        );
-    }
+    await db.transaction(async (tx) => {
+        await tx.delete(userPersonalityTraits).where(eq(userPersonalityTraits.userId, userId));
+        if (traitIds.length > 0) {
+            await tx.insert(userPersonalityTraits).values(
+                traitIds.map((traitId) => ({ userId, traitId }))
+            );
+        }
+    });
 };
 
 // ========================== SET INTERESTED IN ==========================
@@ -122,13 +123,14 @@ export const setUserInterestedIn = async (
     userId: string,
     genders: Array<"MALE" | "FEMALE" | "NON_BINARY" | "OTHER">
 ) => {
-    await db.delete(userInterestedIn).where(eq(userInterestedIn.userId, userId));
-
-    if (genders.length > 0) {
-        await db.insert(userInterestedIn).values(
-            genders.map((gender) => ({ userId, gender }))
-        );
-    }
+    await db.transaction(async (tx) => {
+        await tx.delete(userInterestedIn).where(eq(userInterestedIn.userId, userId));
+        if (genders.length > 0) {
+            await tx.insert(userInterestedIn).values(
+                genders.map((gender) => ({ userId, gender }))
+            );
+        }
+    });
 };
 
 // ========================== SET DISCOVERY PREFERENCES ==========================
@@ -205,13 +207,14 @@ export const setUserInterests = async (userId: string, interestIds: string[]) =>
         throw new Error(`Unknown interest IDs: ${invalid.join(", ")}`);
     }
 
-    await db.delete(userInterests).where(eq(userInterests.userId, userId));
-
-    if (interestIds.length > 0) {
-        await db.insert(userInterests).values(
-            interestIds.map((interestId) => ({ userId, interestId }))
-        );
-    }
+    await db.transaction(async (tx) => {
+        await tx.delete(userInterests).where(eq(userInterests.userId, userId));
+        if (interestIds.length > 0) {
+            await tx.insert(userInterests).values(
+                interestIds.map((interestId) => ({ userId, interestId }))
+            );
+        }
+    });
 };
 
 // ========================== LIST ALL INTERESTS ==========================

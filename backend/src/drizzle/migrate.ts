@@ -1,16 +1,17 @@
 import "dotenv/config";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { logger } from "../utils/logger";
-import db, { client } from "./db";
+import db, { pool } from "./db";
 
-// Creating our migrations
 async function migration() {
     logger.info("-----Migration Started SuccessFully!------");
     await migrate(db, { migrationsFolder: __dirname + "/migrations" });
-    await client.end();
+    await pool.end();
     logger.info("-----Migration ended SuccessFully!-------");
     process.exit(0);
 }
 
-// Catch Errors
-migration().catch()
+migration().catch((err) => {
+    logger.error({ error: err }, "Migration failed");
+    process.exit(1);
+})

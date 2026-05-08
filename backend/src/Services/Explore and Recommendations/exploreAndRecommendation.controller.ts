@@ -1,11 +1,12 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import { logger } from "../../utils/logger";
 import { exploreAndRecommendValidator } from "../../Validators/Explore.validator";
 import { exploreService, recommendationService } from "./exploreAndRecommendations.service";
 
 
 // ========================== 🧭 EXPLORE CONTROLLER ==========================
-export const exploreController = async (req: Request, res: Response) => {
+export const exploreController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const parsed = exploreAndRecommendValidator.safeParse(req.query);
 
@@ -30,10 +31,10 @@ export const exploreController = async (req: Request, res: Response) => {
       error: error.message || "Failed to fetch explore feed.",
     });
   }
-};
+});
 
 // ========================== ❤️ RECOMMENDATION CONTROLLER ==========================
-export const recommendationController = async (req: Request, res: Response) => {
+export const recommendationController = asyncHandler(async (req: Request, res: Response) => {
   try {
     logger.info("[Recommendations] Request from user:", req.user?.id, "query:", req.query);
 
@@ -68,5 +69,5 @@ export const recommendationController = async (req: Request, res: Response) => {
       error: error.message || "Failed to fetch recommendations.",
     });
   }
-};
+});
 

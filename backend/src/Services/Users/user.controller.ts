@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import {
   deleteUser,
   followUser,
@@ -18,7 +19,7 @@ import { userValidator } from "../../Validators/users.vslidator";
 import { createNotification } from "../Notifications/notification.service";
 
 // ========================== GET ALL USERS ==========================
-export const getAllUsersController = async (req: Request, res: Response) => {
+export const getAllUsersController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const users = await getAllUsers();
     if (!users || users.length === 0) {
@@ -28,22 +29,22 @@ export const getAllUsersController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to fetch users" });
   }
-};
+});
 
 // ========================== GET USER BY ID ==========================
-export const getUser = async (req: Request, res: Response) => {
+export const getUser = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const user = await getUserById(id);
     if (!user) return res.status(404).json({ error: "User not found" });
     res.status(200).json({ data: user });
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to fetch user" });
   }
-};
+});
 
 // ========================== GET USER BY EMAIL ==========================
-export const getUserByEmailController = async (req: Request, res: Response) => {
+export const getUserByEmailController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const { email } = req.query;
     if (!email || typeof email !== "string") {
@@ -55,12 +56,12 @@ export const getUserByEmailController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to fetch user by email" });
   }
-};
+});
 
 // ========================== UPDATE USER ==========================
-export const updateUserController = async (req: Request, res: Response) => {
+export const updateUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const parsed = userValidator.partial().safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
@@ -71,12 +72,12 @@ export const updateUserController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to update user" });
   }
-};
+});
 
 // ========================== DELETE USER ==========================
-export const deleteUserController = async (req: Request, res: Response) => {
+export const deleteUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const deletedUser = await deleteUser(id);
     if (!deletedUser) return res.status(404).json({ error: "User not found" });
 
@@ -113,12 +114,12 @@ export const deleteUserController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to delete user" });
   }
-};
+});
 
 // ========================== SUSPEND USER ==========================
-export const suspendUserController = async (req: Request, res: Response) => {
+export const suspendUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const { until } = req.body;
 
     if (!until) return res.status(400).json({ error: "Suspension 'until' date is required" });
@@ -185,12 +186,12 @@ export const suspendUserController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to suspend user" });
   }
-};
+});
 
 // ========================== UNSUSPEND USER ==========================
-export const unsuspendUserController = async (req: Request, res: Response) => {
+export const unsuspendUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const updatedUser = await unsuspendUser(id);
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
@@ -229,12 +230,12 @@ export const unsuspendUserController = async (req: Request, res: Response) => {
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to unsuspend user" });
   }
-};
+});
 
 // ========================== CHECK USER STATUS ==========================
-export const checkUserStatusController = async (req: Request, res: Response) => {
+export const checkUserStatusController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const id = req.params.id;
+    const id = req.params.id as string;
     const user = await getUserById(id);
     if (!user) return res.status(404).json({ error: "User not found" });
 
@@ -243,13 +244,13 @@ export const checkUserStatusController = async (req: Request, res: Response) => 
   } catch (error: any) {
     res.status(500).json({ error: error.message || "Failed to check user status" });
   }
-};
+});
 
 // ========================== FOLLOW USER ==========================
-export const followUserController = async (req: Request, res: Response) => {
+export const followUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const followerId = (req as any).user.id; // Current logged-in user
-    const { userId } = req.params; // User to follow
+    const { userId } = req.params as Record<string, string>; // User to follow
 
     if (followerId === userId) {
       return res.status(400).json({
@@ -285,13 +286,13 @@ export const followUserController = async (req: Request, res: Response) => {
       message: error.message || "Failed to follow user"
     });
   }
-};
+});
 
 // ========================== UNFOLLOW USER ==========================
-export const unfollowUserController = async (req: Request, res: Response) => {
+export const unfollowUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const followerId = (req as any).user.id; // Current logged-in user
-    const { userId } = req.params; // User to unfollow
+    const { userId } = req.params as Record<string, string>; // User to unfollow
 
     const deleted = await unfollowUser(followerId, userId);
     res.status(200).json({
@@ -311,13 +312,13 @@ export const unfollowUserController = async (req: Request, res: Response) => {
       message: error.message || "Failed to unfollow user"
     });
   }
-};
+});
 
 // ========================== CHECK IF FOLLOWING ==========================
-export const checkIfFollowingController = async (req: Request, res: Response) => {
+export const checkIfFollowingController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const followerId = (req as any).user.id; // Current logged-in user
-    const { userId } = req.params; // User to check
+    const { userId } = req.params as Record<string, string>; // User to check
 
     const following = await isFollowing(followerId, userId);
     res.status(200).json({
@@ -330,5 +331,5 @@ export const checkIfFollowingController = async (req: Request, res: Response) =>
       message: error.message || "Failed to check follow status"
     });
   }
-};
+});
 

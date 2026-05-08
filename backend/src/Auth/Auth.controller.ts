@@ -1,5 +1,6 @@
 import bcrypt from "bcrypt";
 import { RequestHandler } from "express";
+import { asyncHandler } from "../utils/asyncHandler";
 import jwt from "jsonwebtoken";
 import crypto from "node:crypto";
 import { sendEmail } from "../Services/email/EmailService";
@@ -125,7 +126,7 @@ export const baseEmailTemplate = (
 `;
 
 // --------------------------- REGISTER ---------------------------
-export const registerUser: RequestHandler = async (req, res) => {
+export const registerUser = asyncHandler(async (req, res) => {
   try {
     logger.info("📥 [BACKEND] Received registration request body:", JSON.stringify(req.body, null, 2));
 
@@ -208,10 +209,10 @@ export const registerUser: RequestHandler = async (req, res) => {
       error: "Registration failed. Please try again later.",
     });
   }
-};
+});
 
 // --------------------------- LOGIN ---------------------------
-export const loginUser: RequestHandler = async (req, res) => {
+export const loginUser = asyncHandler(async (req, res) => {
   try {
     logger.info("📥 [BACKEND] Received login request:", JSON.stringify(req.body, null, 2));
 
@@ -299,10 +300,10 @@ export const loginUser: RequestHandler = async (req, res) => {
       error: "Login failed. Please try again later.",
     });
   }
-};
+});
 
 // --------------------------- REFRESH TOKEN ---------------------------
-export const refreshAccessToken: RequestHandler = async (req, res) => {
+export const refreshAccessToken = asyncHandler(async (req, res) => {
   try {
     const { refreshToken } = req.body;
 
@@ -344,10 +345,10 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
   } catch (error: any) {
     res.status(401).json({ error: "Invalid or expired refresh token" });
   }
-};
+});
 
 // --------------------------- PASSWORD RESET ---------------------------
-export const passwordReset: RequestHandler = async (req, res) => {
+export const passwordReset = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) {
@@ -396,12 +397,12 @@ export const passwordReset: RequestHandler = async (req, res) => {
       error: "Password reset request failed. Please try again later.",
     });
   }
-};
+});
 
 // --------------------------- UPDATE PASSWORD ---------------------------
-export const updatePassword: RequestHandler = async (req, res) => {
+export const updatePassword = asyncHandler(async (req, res) => {
   try {
-    const { token } = req.params;
+    const { token } = req.params as Record<string, string>;
     const { password } = req.body;
 
     if (!token || !password) {
@@ -414,7 +415,7 @@ export const updatePassword: RequestHandler = async (req, res) => {
       });
     }
 
-    const payload = jwt.verify(token, getJWTSecret()) as {
+    const payload = jwt.verify(token, getJWTSecret()) as unknown as {
       email: string;
       type: string;
     };
@@ -453,10 +454,10 @@ export const updatePassword: RequestHandler = async (req, res) => {
       error: "Invalid or expired token",
     });
   }
-};
+});
 
 // --------------------------- EMAIL VERIFICATION ---------------------------
-export const emailVerification: RequestHandler = async (req, res) => {
+export const emailVerification = asyncHandler(async (req, res) => {
   try {
     logger.info("📥 [BACKEND] Received email verification request:", JSON.stringify(req.body, null, 2));
 
@@ -535,10 +536,10 @@ export const emailVerification: RequestHandler = async (req, res) => {
       error: "Email verification failed. Please try again.",
     });
   }
-};
+});
 
 // --------------------------- RESEND VERIFICATION EMAIL ---------------------------
-export const resendVerificationEmail: RequestHandler = async (req, res) => {
+export const resendVerificationEmail = asyncHandler(async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -586,5 +587,5 @@ export const resendVerificationEmail: RequestHandler = async (req, res) => {
       error: "Failed to resend verification email. Please try again.",
     });
   }
-};
+});
 

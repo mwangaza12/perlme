@@ -22,9 +22,18 @@ export class SocketService {
     private readonly userSockets: Map<string, string[]> = new Map();
 
     constructor(server: HTTPServer) {
+        const socketOrigins = (
+            process.env.CORS_ALLOWED_ORIGINS ||
+            process.env.CLIENT_URL ||
+            "http://localhost:3000"
+        )
+            .split(",")
+            .map((o) => o.trim())
+            .filter(Boolean);
+
         this.io = new SocketIOServer(server, {
             cors: {
-                origin: process.env.CLIENT_URL || "http://localhost:3000",
+                origin: socketOrigins.length === 1 ? socketOrigins[0] : socketOrigins,
                 methods: ["GET", "POST"],
                 credentials: true,
             },

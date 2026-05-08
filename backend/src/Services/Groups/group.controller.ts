@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import {
   createGroup,
   getAllGroups,
@@ -18,7 +19,7 @@ import {
 } from "../../Validators/Group.Validators";
 
 // ========================== CREATE GROUP ==========================
-export const createGroupController = async (req: Request, res: Response) => {
+export const createGroupController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const creatorId = req.user?.id;
     if (!creatorId) {
@@ -40,10 +41,10 @@ export const createGroupController = async (req: Request, res: Response) => {
       error: error.message || "Failed to create group",
     });
   }
-};
+});
 
 // ========================== GET ALL GROUPS ==========================
-export const getAllGroupsController = async (_req: Request, res: Response) => {
+export const getAllGroupsController = asyncHandler(async (_req: Request, res: Response) => {
   try {
     const groups = await getAllGroups();
     if (!groups.length) {
@@ -56,12 +57,12 @@ export const getAllGroupsController = async (_req: Request, res: Response) => {
       error: error.message || "Failed to fetch groups",
     });
   }
-};
+});
 
 // ========================== GET GROUP BY ID ==========================
-export const getGroupByIdController = async (req: Request, res: Response) => {
+export const getGroupByIdController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const group = await getGroupById(groupId);
 
     if (!group) {
@@ -74,12 +75,12 @@ export const getGroupByIdController = async (req: Request, res: Response) => {
       error: error.message || "Failed to fetch group",
     });
   }
-};
+});
 
 // ========================== UPDATE GROUP ==========================
-export const updateGroupController = async (req: Request, res: Response) => {
+export const updateGroupController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const parsed = groupChatValidator.partial().safeParse(req.body);
 
     if (!parsed.success) {
@@ -100,12 +101,12 @@ export const updateGroupController = async (req: Request, res: Response) => {
       error: error.message || "Failed to update group",
     });
   }
-};
+});
 
 // ========================== DELETE GROUP ==========================
-export const deleteGroupController = async (req: Request, res: Response) => {
+export const deleteGroupController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const deleted = await deleteGroup(groupId);
 
     if (!deleted) {
@@ -121,12 +122,12 @@ export const deleteGroupController = async (req: Request, res: Response) => {
       error: error.message || "Failed to delete group",
     });
   }
-};
+});
 
 // ========================== ADD MEMBER ==========================
-export const addGroupMemberController = async (req: Request, res: Response) => {
+export const addGroupMemberController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const { userId, role } = req.body;
 
     const member = await addGroupMember({
@@ -145,12 +146,12 @@ export const addGroupMemberController = async (req: Request, res: Response) => {
       error: error.message || "Failed to add member",
     });
   }
-};
+});
 
 // ========================== REMOVE MEMBER ==========================
-export const removeGroupMemberController = async (req: Request, res: Response) => {
+export const removeGroupMemberController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId, userId } = req.params;
+    const { groupId, userId } = req.params as Record<string, string>;
     const removed = await removeGroupMember(groupId, userId);
 
     if (!removed) {
@@ -163,12 +164,12 @@ export const removeGroupMemberController = async (req: Request, res: Response) =
       error: error.message || "Failed to remove member",
     });
   }
-};
+});
 
 // ========================== UPDATE MEMBER ROLE ==========================
-export const updateMemberRoleController = async (req: Request, res: Response) => {
+export const updateMemberRoleController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId, userId } = req.params;
+    const { groupId, userId } = req.params as Record<string, string>;
     const { role } = req.body;
 
     const updated = await updateMemberRole(groupId, userId, role);
@@ -185,12 +186,12 @@ export const updateMemberRoleController = async (req: Request, res: Response) =>
       error: error.message || "Failed to update member role",
     });
   }
-};
+});
 
 // ========================== GET GROUP MEMBERS ==========================
-export const getGroupMembersController = async (req: Request, res: Response) => {
+export const getGroupMembersController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const members = await getGroupMembers(groupId);
 
     return res.status(200).json({ count: members.length, data: members });
@@ -199,10 +200,10 @@ export const getGroupMembersController = async (req: Request, res: Response) => 
       error: error.message || "Failed to fetch members",
     });
   }
-};
+});
 
 // ========================== SEND GROUP MESSAGE ==========================
-export const sendGroupMessageController = async (req: Request, res: Response) => {
+export const sendGroupMessageController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const senderId = req.user?.id;
     if (!senderId) {
@@ -224,12 +225,12 @@ export const sendGroupMessageController = async (req: Request, res: Response) =>
       error: error.message || "Failed to send message",
     });
   }
-};
+});
 
 // ========================== GET GROUP MESSAGES ==========================
-export const getGroupMessagesController = async (req: Request, res: Response) => {
+export const getGroupMessagesController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params;
+    const { groupId } = req.params as Record<string, string>;
     const messages = await getGroupMessages(groupId);
 
     return res.status(200).json({ count: messages.length, data: messages });
@@ -238,4 +239,4 @@ export const getGroupMessagesController = async (req: Request, res: Response) =>
       error: error.message || "Failed to fetch group messages",
     });
   }
-};
+});

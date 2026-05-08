@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import { logger } from "../../utils/logger";
 import { PaginationHandler } from "../../utils/paginationHandler";
 import { ResponseHandler } from "../../utils/responseHandler";
@@ -10,7 +11,7 @@ import {
     markNotificationAsRead,
 } from "./notification.service";
 
-export const getNotificationsController = async (req: Request, res: Response) => {
+export const getNotificationsController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -31,9 +32,9 @@ export const getNotificationsController = async (req: Request, res: Response) =>
         logger.error("Error fetching notifications:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const getUnreadCountController = async (req: Request, res: Response) => {
+export const getUnreadCountController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -44,12 +45,12 @@ export const getUnreadCountController = async (req: Request, res: Response) => {
         logger.error("Error fetching unread count:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const markAsReadController = async (req: Request, res: Response) => {
+export const markAsReadController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { id } = req.params;
+        const { id } = req.params as Record<string, string>;
         if (!userId) return ResponseHandler.unauthorized(res);
         if (!id) return ResponseHandler.badRequest(res, "Notification ID is required");
 
@@ -61,9 +62,9 @@ export const markAsReadController = async (req: Request, res: Response) => {
         logger.error("Error marking notification read:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const markAllAsReadController = async (req: Request, res: Response) => {
+export const markAllAsReadController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -74,12 +75,12 @@ export const markAllAsReadController = async (req: Request, res: Response) => {
         logger.error("Error marking all notifications read:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const deleteNotificationController = async (req: Request, res: Response) => {
+export const deleteNotificationController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { id } = req.params;
+        const { id } = req.params as Record<string, string>;
         if (!userId) return ResponseHandler.unauthorized(res);
         if (!id) return ResponseHandler.badRequest(res, "Notification ID is required");
 
@@ -91,4 +92,4 @@ export const deleteNotificationController = async (req: Request, res: Response) 
         logger.error("Error deleting notification:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});

@@ -15,35 +15,37 @@ import {
 export const createGroup = async (data: TGroupChatValidator) => {
   const validated = groupChatValidator.parse(data);
 
-  // ✅ Insert the new group
-  const [group] = await db.insert(groupChats).values(validated).returning();
+  return await db.transaction(async (tx) => {
+    // ✅ Insert the new group
+    const [group] = await tx.insert(groupChats).values(validated).returning();
 
-  // ✅ Automatically make creator a GROUP_ADMIN
-  await db.insert(groupMembers).values({
-    groupId: group.id,
-    userId: validated.creatorId,
-    role: groupRoleEnum.enum.GROUP_ADMIN,
-    joinedAt: new Date(),
-  });
-
-  // ✅ Automatically add all system admins as GROUP_MODERATOR
-  const systemAdmins = await db
-    .select()
-    .from(users)
-    .where(eq(users.role, "ADMIN"));
-
-  if (systemAdmins.length > 0) {
-    const moderatorsToAdd = systemAdmins.map((admin) => ({
+    // ✅ Automatically make creator a GROUP_ADMIN
+    await tx.insert(groupMembers).values({
       groupId: group.id,
-      userId: admin.id,
-      role: groupRoleEnum.enum.GROUP_MODERATOR,
+      userId: validated.creatorId,
+      role: groupRoleEnum.enum.GROUP_ADMIN,
       joinedAt: new Date(),
-    }));
+    });
 
-    await db.insert(groupMembers).values(moderatorsToAdd);
-  }
+    // ✅ Automatically add all system admins as GROUP_MODERATOR
+    const systemAdmins = await tx
+      .select()
+      .from(users)
+      .where(eq(users.role, "ADMIN"));
 
-  return group;
+    if (systemAdmins.length > 0) {
+      const moderatorsToAdd = systemAdmins.map((admin) => ({
+        groupId: group.id,
+        userId: admin.id,
+        role: groupRoleEnum.enum.GROUP_MODERATOR,
+        joinedAt: new Date(),
+      }));
+
+      await tx.insert(groupMembers).values(moderatorsToAdd);
+    }
+
+    return group;
+  });
 };
 
 // ========================== GET ALL GROUPS ==========================

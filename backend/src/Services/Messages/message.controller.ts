@@ -40,7 +40,7 @@ export class MessageController {
 
     updateMessageStatus = async (req: Request, res: Response) => {
         try {
-            const { messageId } = req.params;
+            const { messageId } = req.params as Record<string, string>;
             const { status } = req.body;
             const userId = (req as any).user.id;
 
@@ -63,7 +63,7 @@ export class MessageController {
 
     markConversationAsRead = async (req: Request, res: Response) => {
         try {
-            const { otherUserId } = req.params;
+            const { otherUserId } = req.params as Record<string, string>;
             const userId = (req as any).user.id;
 
             const messages = await this.messageService.markConversationAsRead(
@@ -80,7 +80,7 @@ export class MessageController {
 
     getConversation = async (req: Request, res: Response) => {
         try {
-            const { otherUserId } = req.params;
+            const { otherUserId } = req.params as Record<string, string>;
             const userId = (req as any).user.id;
             const limit = Number.parseInt(req.query.limit as string) || 50;
             const offset = Number.parseInt(req.query.offset as string) || 0;
@@ -137,7 +137,7 @@ export class MessageController {
 
     deleteMessage = async (req: Request, res: Response) => {
         try {
-            const { messageId } = req.params;
+            const { messageId } = req.params as Record<string, string>;
             const userId = (req as any).user.id;
 
             await this.messageService.deleteMessage(messageId, userId);

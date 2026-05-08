@@ -1,5 +1,6 @@
 import { logger } from "../../utils/logger";
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import {
   createReport,
   getAllReports,
@@ -27,7 +28,7 @@ const getAdminEmails = async (): Promise<string[]> => {
 };
 
 // ========================== CREATE REPORT ==========================
-export const createReportController = async (req: Request, res: Response) => {
+export const createReportController = asyncHandler(async (req: Request, res: Response) => {
   try {
     const reporterId = req.user?.id;
     if (!reporterId) {
@@ -212,10 +213,10 @@ const existingReport = await db
       error: error.message || "Failed to create report",
     });
   }
-};
+});
 
 // ========================== GET ALL REPORTS ==========================
-export const getAllReportsController = async (_req: Request, res: Response) => {
+export const getAllReportsController = asyncHandler(async (_req: Request, res: Response) => {
   try {
     const reports = await getAllReports();
     if (!reports.length) {
@@ -228,12 +229,12 @@ export const getAllReportsController = async (_req: Request, res: Response) => {
       error: error.message || "Failed to fetch reports",
     });
   }
-};
+});
 
 // ========================== GET REPORTS BY USER ==========================
-export const getReportsByUserController = async (req: Request, res: Response) => {
+export const getReportsByUserController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { userId } = req.params;
+    const { userId } = req.params as Record<string, string>;
     const reportsByUser = await getReportsByUser(userId);
 
     if (!reportsByUser.length) {
@@ -249,12 +250,12 @@ export const getReportsByUserController = async (req: Request, res: Response) =>
       error: error.message || "Failed to fetch user reports",
     });
   }
-};
+});
 
 // ========================== GET REPORTS BY STATUS ==========================
-export const getReportsByStatusController = async (req: Request, res: Response) => {
+export const getReportsByStatusController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { status } = req.params;
+    const { status } = req.params as Record<string, string>;
     const reportsByStatus = await getReportsByStatus(status);
 
     if (!reportsByStatus.length) {
@@ -270,12 +271,12 @@ export const getReportsByStatusController = async (req: Request, res: Response) 
       error: error.message || "Failed to fetch reports by status",
     });
   }
-};
+});
 
 // ========================== UPDATE REPORT STATUS ==========================
-export const updateReportStatusController = async (req: Request, res: Response) => {
+export const updateReportStatusController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.params;
+    const { reportId } = req.params as Record<string, string>;
     const parsed = updateReportValidator.safeParse(req.body);
 
     if (!parsed.success) {
@@ -356,12 +357,12 @@ export const updateReportStatusController = async (req: Request, res: Response) 
       error: error.message || "Failed to update report status",
     });
   }
-};
+});
 
 // ========================== DELETE REPORT ==========================
-export const deleteReportController = async (req: Request, res: Response) => {
+export const deleteReportController = asyncHandler(async (req: Request, res: Response) => {
   try {
-    const { reportId } = req.params;
+    const { reportId } = req.params as Record<string, string>;
     const deletedReport = await deleteReport(reportId);
 
     if (!deletedReport) {
@@ -377,5 +378,5 @@ export const deleteReportController = async (req: Request, res: Response) => {
       error: error.message || "Failed to delete report",
     });
   }
-};
+});
 

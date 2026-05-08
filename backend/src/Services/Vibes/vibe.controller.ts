@@ -20,7 +20,7 @@ export class VibeController {
      */
     castVibe = async (req: Request, res: Response): Promise<void> => {
         const voterId = (req as any).user?.id as string;
-        const { targetUserId } = req.params;
+        const { targetUserId } = req.params as Record<string, string>;
         const { vibeType } = req.body as { vibeType: string };
 
         if (!vibeType || !VALID_VIBE_TYPES.has(vibeType)) {
@@ -42,7 +42,7 @@ export class VibeController {
      * Returns top vibe + all counts for a user.
      */
     getVibes = async (req: Request, res: Response): Promise<void> => {
-        const { targetUserId } = req.params;
+        const { targetUserId } = req.params as Record<string, string>;
         const voterId = (req as any).user?.id as string;
 
         try {
@@ -64,7 +64,7 @@ export class VibeController {
      */
     getPromptStatus = async (req: Request, res: Response): Promise<void> => {
         const userId = (req as any).user?.id as string;
-        const { targetUserId } = req.params;
+        const { targetUserId } = req.params as Record<string, string>;
 
         try {
             const show = await vibeService.shouldShowVibePrompt(userId, targetUserId);

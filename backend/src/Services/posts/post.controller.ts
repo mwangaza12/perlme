@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { asyncHandler } from "../../utils/asyncHandler";
 import { logger } from "../../utils/logger";
 import { PaginationHandler } from "../../utils/paginationHandler";
 import { ResponseHandler } from "../../utils/responseHandler";
@@ -16,7 +17,7 @@ import {
     updatePostService,
 } from "./post.service";
 
-export const createPostController = async (req: Request, res: Response) => {
+export const createPostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -37,9 +38,9 @@ export const createPostController = async (req: Request, res: Response) => {
         logger.error("Error creating post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const getAllPublicPostsController = async (req: Request, res: Response) => {
+export const getAllPublicPostsController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
         logger.info("[Posts] getAllPublicPosts — userId:", userId ?? "(unauthenticated)", "query:", req.query);
@@ -60,12 +61,12 @@ export const getAllPublicPostsController = async (req: Request, res: Response) =
         logger.error("Error fetching posts:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
 
-export const getPostByIdController = async (req: Request, res: Response) => {
+export const getPostByIdController = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
         const userId = req.user?.id;
         if (!postId) return ResponseHandler.badRequest(res, "Post ID is required");
 
@@ -77,11 +78,11 @@ export const getPostByIdController = async (req: Request, res: Response) => {
         logger.error("Error fetching post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const getPostsByUserController = async (req: Request, res: Response) => {
+export const getPostsByUserController = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { userId: targetUserId } = req.params;
+        const { userId: targetUserId } = req.params as Record<string, string>;
         const currentUserId = req.user?.id;
 
         if (!targetUserId) return ResponseHandler.badRequest(res, "User ID is required");
@@ -109,13 +110,13 @@ export const getPostsByUserController = async (req: Request, res: Response) => {
         logger.error("Error fetching user posts:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
 
-export const updatePostController = async (req: Request, res: Response) => {
+export const updatePostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
         const { content } = req.body;
 
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -130,11 +131,11 @@ export const updatePostController = async (req: Request, res: Response) => {
         logger.error("Error updating post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const deletePostController = async (req: Request, res: Response) => {
+export const deletePostController = asyncHandler(async (req: Request, res: Response) => {
     try {
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
         const userId = req.user?.id;
 
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -148,12 +149,12 @@ export const deletePostController = async (req: Request, res: Response) => {
         logger.error("Error deleting post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const likePostController = async (req: Request, res: Response) => {
+export const likePostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
 
         if (!userId) return ResponseHandler.unauthorized(res);
         if (!postId) return ResponseHandler.badRequest(res, "Post ID is required");
@@ -172,12 +173,12 @@ export const likePostController = async (req: Request, res: Response) => {
         logger.error("Error liking post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const unlikePostController = async (req: Request, res: Response) => {
+export const unlikePostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
 
         if (!userId) return ResponseHandler.unauthorized(res);
         if (!postId) return ResponseHandler.badRequest(res, "Post ID is required");
@@ -188,12 +189,12 @@ export const unlikePostController = async (req: Request, res: Response) => {
         logger.error("Error unliking post:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const commentOnPostController = async (req: Request, res: Response) => {
+export const commentOnPostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
         const { content } = req.body;
 
         if (!userId) return ResponseHandler.unauthorized(res);
@@ -214,12 +215,12 @@ export const commentOnPostController = async (req: Request, res: Response) => {
         logger.error("Error adding comment:", error);
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
-export const repostController = async (req: Request, res: Response) => {
+export const repostController = asyncHandler(async (req: Request, res: Response) => {
     try {
         const userId = req.user?.id;
-        const { postId } = req.params;
+        const { postId } = req.params as Record<string, string>;
 
         if (!userId) return ResponseHandler.unauthorized(res);
         if (!postId) return ResponseHandler.badRequest(res, "Post ID is required");
@@ -233,5 +234,5 @@ export const repostController = async (req: Request, res: Response) => {
         }
         return ResponseHandler.internal(res, "Internal server error", error);
     }
-};
+});
 
