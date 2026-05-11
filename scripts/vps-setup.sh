@@ -290,6 +290,7 @@ fi
 # 11. Firewall (ufw)
 # =============================================================================
 log "11/12 — Configuring firewall..."
+apt-get install -y -qq ufw
 ufw --force reset
 ufw default deny incoming
 ufw default allow outgoing
