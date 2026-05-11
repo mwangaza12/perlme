@@ -11,7 +11,7 @@ if (!fs.existsSync(logsDir)) {
 
 const destination = pino.destination({
     dest: backendLogFile,
-    sync: false,
+    sync: true,
 });
 
 export const pinoLogger = pino(
