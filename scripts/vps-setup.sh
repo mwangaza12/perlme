@@ -248,11 +248,42 @@ systemctl start promtail || warn "Promtail failed to start — check: journalctl
 # 10. Nginx site config
 # =============================================================================
 log "10/12 — Configuring Nginx..."
-if [[ -f "${APP_DIR}/nginx/pearlme.api.com.conf" ]]; then
-    cp "${APP_DIR}/nginx/pearlme.api.com.conf" /etc/nginx/sites-available/pearlme.api.com
-    ln -sf /etc/nginx/sites-available/pearlme.api.com /etc/nginx/sites-enabled/pearlme.api.com
-    rm -f /etc/nginx/sites-enabled/default
-    nginx -t && systemctl reload nginx
+CERT_PATH="/etc/letsencrypt/live/pearlme.api.com/fullchain.pem"
+
+# Always write an HTTP-only config so the ACME challenge works when certbot runs later
+cat > /etc/nginx/sites-available/pearlme.api.com << 'NGINXHTTP'
+server {
+    listen 80;
+    listen [::]:80;
+    server_name pearlme.api.com;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://$server_name$request_uri;
+    }
+}
+NGINXHTTP
+
+ln -sf /etc/nginx/sites-available/pearlme.api.com /etc/nginx/sites-enabled/pearlme.api.com
+rm -f /etc/nginx/sites-enabled/default
+nginx -t && systemctl reload nginx
+
+if [[ -f "$CERT_PATH" ]]; then
+    # SSL certs exist — load the full HTTPS config
+    if [[ -f "${APP_DIR}/nginx/pearlme.api.com.conf" ]]; then
+        cp "${APP_DIR}/nginx/pearlme.api.com.conf" /etc/nginx/sites-available/pearlme.api.com
+        nginx -t && systemctl reload nginx
+        log "  Full HTTPS Nginx config loaded."
+    fi
+else
+    warn "SSL certs not yet issued — HTTP-only Nginx config is active."
+    warn "After DNS is live, run:"
+    warn "  certbot --nginx -d pearlme.api.com"
+    warn "Then apply the full config:"
+    warn "  cp ${APP_DIR}/nginx/pearlme.api.com.conf /etc/nginx/sites-available/pearlme.api.com && nginx -t && systemctl reload nginx"
 fi
 
 # =============================================================================
