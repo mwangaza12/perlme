@@ -8,10 +8,12 @@ async function migration() {
     await migrate(db, { migrationsFolder: __dirname + "/migrations" });
     await pool.end();
     logger.info("-----Migration ended SuccessFully!-------");
+    await logger.flush();
     process.exit(0);
 }
 
-migration().catch((err) => {
+migration().catch(async (err) => {
     logger.error({ error: err }, "Migration failed");
+    await logger.flush();
     process.exit(1);
 })

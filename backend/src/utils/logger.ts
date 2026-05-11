@@ -61,6 +61,7 @@ export const logger = {
     debug: makeLogMethod(pinoLogger.debug.bind(pinoLogger)),
     fatal: makeLogMethod(pinoLogger.fatal.bind(pinoLogger)),
     trace: makeLogMethod(pinoLogger.trace.bind(pinoLogger)),
+    flush: () => new Promise<void>(resolve => pinoLogger.flush(() => resolve())),
 };
 
 export const logFiles = {
