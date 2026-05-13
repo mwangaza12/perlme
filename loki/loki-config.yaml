@@ -39,6 +39,7 @@ limits_config:
 
 compactor:
   working_directory: /var/lib/loki/compactor
+  delete_request_store: filesystem
   retention_enabled: true
 
 query_range:
