@@ -11,8 +11,8 @@
       "server": "localhost",
       "port": 5432,
       "driver": "PostgreSQL",
-      "name": "pearlme",
-      "database": "pearlme",
+      "name": "pearlmeinc",
+      "database": "pearlmeinc",
       "username": "postgres"
     }
   ],

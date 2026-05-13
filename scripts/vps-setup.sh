@@ -137,19 +137,19 @@ fi
 
 # Check DNS before attempting cert issuance
 SERVER_IP=$(curl -s ifconfig.me || echo "")
-DNS_IP=$(dig +short pearlme.api.com A 2>/dev/null | tail -1 || echo "")
+DNS_IP=$(dig +short pearlmeinc.api.com A 2>/dev/null | tail -1 || echo "")
 
 if [[ "$DNS_IP" == "$SERVER_IP" ]]; then
     log "  DNS is live. Issuing SSL certificate..."
-    certbot --nginx -d pearlme.api.com \
+    certbot --nginx -d pearlmeinc.api.com \
         --non-interactive --agree-tos \
-        --email admin@pearlme.api.com \
-        --redirect || warn "Certbot failed — run manually: certbot --nginx -d pearlme.api.com"
+        --email admin@pearlmeinc.api.com \
+        --redirect || warn "Certbot failed — run manually: certbot --nginx -d pearlmeinc.api.com"
 else
-    warn "DNS for pearlme.api.com does not point to this server yet."
+    warn "DNS for pearlmeinc.api.com does not point to this server yet."
     warn "  Expected : $SERVER_IP"
     warn "  Got      : ${DNS_IP:-'(no result)'}"
-    warn "  Run certbot manually once DNS is live: certbot --nginx -d pearlme.api.com"
+    warn "  Run certbot manually once DNS is live: certbot --nginx -d pearlmeinc.api.com"
 fi
 
 # =============================================================================
@@ -248,14 +248,14 @@ systemctl start promtail || warn "Promtail failed to start — check: journalctl
 # 10. Nginx site config
 # =============================================================================
 log "10/12 — Configuring Nginx..."
-CERT_PATH="/etc/letsencrypt/live/pearlme.api.com/fullchain.pem"
+CERT_PATH="/etc/letsencrypt/live/pearlmeinc.api.com/fullchain.pem"
 
 # Always write an HTTP-only config so the ACME challenge works when certbot runs later
-cat > /etc/nginx/sites-available/pearlme.api.com << 'NGINXHTTP'
+cat > /etc/nginx/sites-available/pearlmeinc.api.com << 'NGINXHTTP'
 server {
     listen 80;
     listen [::]:80;
-    server_name pearlme.api.com;
+    server_name pearlmeinc.api.com;
 
     location /.well-known/acme-challenge/ {
         root /var/www/html;
@@ -267,23 +267,23 @@ server {
 }
 NGINXHTTP
 
-ln -sf /etc/nginx/sites-available/pearlme.api.com /etc/nginx/sites-enabled/pearlme.api.com
+ln -sf /etc/nginx/sites-available/pearlmeinc.api.com /etc/nginx/sites-enabled/pearlmeinc.api.com
 rm -f /etc/nginx/sites-enabled/default
 nginx -t && systemctl reload nginx
 
 if [[ -f "$CERT_PATH" ]]; then
     # SSL certs exist — load the full HTTPS config
-    if [[ -f "${APP_DIR}/nginx/pearlme.api.com.conf" ]]; then
-        cp "${APP_DIR}/nginx/pearlme.api.com.conf" /etc/nginx/sites-available/pearlme.api.com
+    if [[ -f "${APP_DIR}/nginx/pearlmeinc.api.com.conf" ]]; then
+        cp "${APP_DIR}/nginx/pearlmeinc.api.com.conf" /etc/nginx/sites-available/pearlmeinc.api.com
         nginx -t && systemctl reload nginx
         log "  Full HTTPS Nginx config loaded."
     fi
 else
     warn "SSL certs not yet issued — HTTP-only Nginx config is active."
     warn "After DNS is live, run:"
-    warn "  certbot --nginx -d pearlme.api.com"
+    warn "  certbot --nginx -d pearlmeinc.api.com"
     warn "Then apply the full config:"
-    warn "  cp ${APP_DIR}/nginx/pearlme.api.com.conf /etc/nginx/sites-available/pearlme.api.com && nginx -t && systemctl reload nginx"
+    warn "  cp ${APP_DIR}/nginx/pearlmeinc.api.com.conf /etc/nginx/sites-available/pearlmeinc.api.com && nginx -t && systemctl reload nginx"
 fi
 
 # =============================================================================
@@ -336,7 +336,7 @@ echo "  DATABASE_URL=${DATABASE_URL}"
 echo ""
 echo "Next steps:"
 echo "  1. Clone the repo (if not already):"
-echo "     git clone https://github.com/BrianKimurgor/pearlme.git ${APP_DIR}"
+echo "     git clone https://github.com/BrianKimurgor/pearlmeinc.git ${APP_DIR}"
 echo ""
 echo "  2. Create the .env file:"
 echo "     cp ${APP_DIR}/backend/.env.example ${APP_DIR}/backend/.env"
@@ -357,5 +357,5 @@ echo "     Login: admin / admin (change on first login)"
 echo "     Add datasource: Loki → URL: http://127.0.0.1:3100"
 echo ""
 echo "  5. If DNS is not yet live, run Certbot manually once it is:"
-echo "     certbot --nginx -d pearlme.api.com"
+echo "     certbot --nginx -d pearlmeinc.api.com"
 echo ""

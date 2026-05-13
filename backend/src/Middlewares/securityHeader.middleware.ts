@@ -99,7 +99,7 @@ export const applySecurityHeaders = (app: Express) => {
 
 // Parse and validate CORS origins once at startup.
 // Set CORS_ALLOWED_ORIGINS as a comma-separated list in your .env:
-//   CORS_ALLOWED_ORIGINS=https://app.pearlme.com,https://admin.pearlme.com
+//   CORS_ALLOWED_ORIGINS=https://app.pearlmeinc.com,https://admin.pearlmeinc.com
 // Falls back to FRONTEND_URL, then localhost for development.
 const rawOrigins =
     process.env.CORS_ALLOWED_ORIGINS ||
