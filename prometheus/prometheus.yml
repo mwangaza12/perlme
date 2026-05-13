@@ -9,8 +9,5 @@ scrape_configs:
     metrics_path: '/metrics'
     scheme: 'http'
     static_configs:
-      - targets: ['127.0.0.1:3000']
+      - targets: ['127.0.0.1:4000']
     honor_labels: true
-    authorization:
-      type: Bearer
-      credentials: "OWI0LTIxNmIyYTM1NDQ4YSIsImVtYWlsIjoiZ2FrZW55ZWRlc2lnbnNAZ21haWwuY29tIiwicm9sZSI6IlJFR1VMQVIiLCJ1c2VybmFtZSI6IlVzZXJHYWtlbnllIiwiaWF0IjoxNzYxMzk4MjYzLCJleHAiOjE3NjE0MDE4NjN9.wuTH6bBLGYHKYdrIGcU_v7Wr_vbzeXUfNkY4wNDmMck"
